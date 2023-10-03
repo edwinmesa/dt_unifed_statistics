@@ -3,7 +3,7 @@ import math
 import numpy as np
 import unicodedata
 import re
-
+import datetime
 
 class StatisticsUnified:
 
@@ -11,6 +11,13 @@ class StatisticsUnified:
         self.df_clientes   = pd.read_parquet('/home/pydev/workflow/dt_unifed_statistics/data/clientes_b2b.parquet')
         self.df_calendario = pd.read_parquet('/home/pydev/workflow/dt_unifed_statistics/data/calendario_visitas.parquet')
         self.df_visitas    = pd.read_parquet('/home/pydev/workflow/dt_unifed_statistics/data/visitas_vendedores.parquet')
+
+        # Get the current date
+        self.current_date = datetime.datetime.now()
+        # Check if today is the last day of the month
+        self.is_last_day_of_month = (self.current_date + datetime.timedelta(days=1)).day == 1
+        # Period
+        self.period_of_month = self.current_date.strftime("%Y%m")
 
     def convert_and_extract(self, value):
         if pd.notna(value):
@@ -168,6 +175,15 @@ class StatisticsUnified:
             start_idx = end_idx
         # Save each part as a separate CSV file
 
+        # Si es ultimo dia del mes entonces guardar la data con el siguiente formato:
+        # result_example_client_{i+1}_periodo.csv es decir: result_example_client_1_202310.csv en una carpeta con el mes.
+
+        # self.is_last_day_of_month = True
+
+        if self.is_last_day_of_month:
+            for i, part_df in enumerate(parts):
+                part_df.to_csv(f'/home/pydev/workflow/dt_unifed_statistics/data_by_month/result_example_client_{i+1}_{self.period_of_month}.csv', mode='w', sep=';', encoding='latin1', errors='ignore', index=False)
+        
         for i, part_df in enumerate(parts):
             part_df.to_csv(f'/home/pydev/workflow/dt_unifed_statistics/resultUnifiedStatistics/result_example_client_{i+1}.csv', mode='w', sep=';', encoding='latin1', errors='ignore', index=False)
 
