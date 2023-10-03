@@ -42,6 +42,8 @@ class StatisticsUnified:
     
     # Define a function to remove diacritical marks and special characters
     def remove_diacritical_marks(self, text):
+        if text is None:
+            return None
         # Normalize the text to decompose diacritical marks
         normalized_text = unicodedata.normalize('NFKD', text)
         cleaned_text = re.sub(r'[^a-zA-Z0-9\s]', '', normalized_text)
@@ -84,7 +86,7 @@ class StatisticsUnified:
     
     def transform_1(self):
         # Merge the customers with calendar()
-        self.base_clientes_rutero               = pd.merge(self.df_clientes, self.df_calendario)
+        self.base_clientes_rutero               = pd.merge(self.df_clientes, self.df_calendario, how='outer')
         self.base_clientes_cruze                = self.df_clientes.copy()
         self.merge_cli_cruze                    = pd.merge(self.df_visitas, self.base_clientes_cruze, how="left")
         # Convert the datetime columns to datetime objects
